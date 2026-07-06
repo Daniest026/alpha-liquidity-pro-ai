@@ -1,21 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Header from "../components/Header";
+import MarketStatus from "../components/MarketStatus";
+import SmcEngine from "../components/SmcEngine";
+import { getInitialSmcState } from "../lib/smc";
 
 export default function Home() {
-  const [trend] = useState("Neutral");
-  const [bos] = useState("Waiting");
-  const [choch] = useState("Waiting");
-  const [liquidity] = useState("Waiting");
-  const [orderBlock] = useState("None");
-  const [fairValueGap] = useState("None");
-  const [bosStatus] = useState("Waiting");
-  const [chochStatus] = useState("Waiting");
-  const [liquiditySweepStatus] = useState("Waiting");
-  const [orderBlockBias] = useState("Waiting");
-  const [fairValueGapStatus] = useState("Waiting");
-  const [premiumDiscountStatus] = useState("Waiting");
+  const [smcState] = useState(() => getInitialSmcState());
+
+  const smcCards = useMemo(
+    () => [
+      {
+        title: "Break of Structure (BOS)",
+        status: smcState.bos,
+        description: "Monitor structural breaks that confirm a shift in directional intent.",
+      },
+      {
+        title: "Change of Character (CHoCH)",
+        status: smcState.choch,
+        description: "Detect subtle transitions that often precede a larger market reversal.",
+      },
+      {
+        title: "Liquidity Sweep",
+        status: smcState.liquidity,
+        description: "Identify engineered sweeps that trap participants before the next move.",
+      },
+      {
+        title: "Order Block",
+        status: smcState.orderBlock,
+        description: "Track institutional demand and supply zones that can anchor future price action.",
+      },
+      {
+        title: "Fair Value Gap",
+        status: smcState.fairValueGap,
+        description: "Highlight imbalance zones where price often seeks efficient rebalancing.",
+      },
+      {
+        title: "Premium / Discount Zone",
+        status: "Waiting",
+        description: "Map value areas to determine whether price is operating at a premium or discount.",
+      },
+    ],
+    [smcState.bos, smcState.choch, smcState.fairValueGap, smcState.liquidity, smcState.orderBlock],
+  );
 
   const cards = [
     {
@@ -50,82 +78,6 @@ export default function Home() {
     },
   ];
 
-  const marketStatus = [
-    { label: "Trend", value: trend, level: 0 },
-    { label: "BOS", value: bos, level: 1 },
-    { label: "CHoCH", value: choch, level: 2 },
-    { label: "Liquidity", value: liquidity, level: 3 },
-    { label: "Order Block", value: orderBlock, level: 4 },
-    { label: "Fair Value Gap", value: fairValueGap, level: 5 },
-  ];
-
-  const getBadgeStyle = (value: string) => {
-    switch (value) {
-      case "Bullish":
-      case "Detected":
-      case "Open":
-        return {
-          background: "rgba(34, 197, 94, 0.16)",
-          color: "#4ade80",
-          border: "1px solid rgba(74, 222, 128, 0.35)",
-        };
-      case "Bearish":
-        return {
-          background: "rgba(239, 68, 68, 0.16)",
-          color: "#f87171",
-          border: "1px solid rgba(248, 113, 113, 0.35)",
-        };
-      case "Neutral":
-      case "Premium":
-      case "Discount":
-      case "Equilibrium":
-        return {
-          background: "rgba(255, 215, 0, 0.16)",
-          color: "#FFD700",
-          border: "1px solid rgba(255, 215, 0, 0.3)",
-        };
-      default:
-        return {
-          background: "rgba(255, 255, 255, 0.08)",
-          color: "#c7c7c7",
-          border: "1px solid rgba(255, 255, 255, 0.12)",
-        };
-    }
-  };
-
-  const smartMoneyCards = [
-    {
-      title: "Break of Structure (BOS)",
-      status: bosStatus,
-      description: "Monitor structural breaks that confirm a shift in directional intent.",
-    },
-    {
-      title: "Change of Character (CHoCH)",
-      status: chochStatus,
-      description: "Detect subtle transitions that often precede a larger market reversal.",
-    },
-    {
-      title: "Liquidity Sweep",
-      status: liquiditySweepStatus,
-      description: "Identify engineered sweeps that trap participants before the next move.",
-    },
-    {
-      title: "Order Block",
-      status: orderBlockBias,
-      description: "Track institutional demand and supply zones that can anchor future price action.",
-    },
-    {
-      title: "Fair Value Gap",
-      status: fairValueGapStatus,
-      description: "Highlight imbalance zones where price often seeks efficient rebalancing.",
-    },
-    {
-      title: "Premium / Discount Zone",
-      status: premiumDiscountStatus,
-      description: "Map value areas to determine whether price is operating at a premium or discount.",
-    },
-  ];
-
   return (
     <>
       <Header />
@@ -142,157 +94,16 @@ export default function Home() {
         }}
       >
         <section style={{ maxWidth: "1200px", width: "100%" }}>
-          <div
-            style={{
-              marginBottom: "28px",
-              background: "rgba(255, 255, 255, 0.04)",
-              border: "1px solid rgba(255, 215, 0, 0.22)",
-              borderRadius: "20px",
-              padding: "20px",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.25)",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <h2
-              style={{
-                margin: "0 0 14px",
-                fontSize: "clamp(1.15rem, 2vw, 1.35rem)",
-                color: "#FFD700",
-              }}
-            >
-              Market Status
-            </h2>
-            <div style={{ display: "grid", gap: "10px" }}>
-              {marketStatus.map((item) => (
-                <div
-                  key={item.label}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: "12px",
-                    padding: "12px 14px",
-                    borderRadius: "12px",
-                    background: "rgba(255, 255, 255, 0.03)",
-                    border: "1px solid rgba(255, 215, 0, 0.12)",
-                    paddingLeft: `${14 + item.level * 16}px`,
-                  }}
-                >
-                  <span style={{ fontWeight: 600, color: "#f8d84a" }}>{item.label}</span>
-                  <span
-                    style={{
-                      ...getBadgeStyle(item.value),
-                      padding: "6px 10px",
-                      borderRadius: "999px",
-                      fontSize: "0.85rem",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.08em",
-                    }}
-                  >
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <MarketStatus
+            trend={smcState.trend}
+            bos={smcState.bos}
+            choch={smcState.choch}
+            liquidity={smcState.liquidity}
+            orderBlock={smcState.orderBlock}
+            fairValueGap={smcState.fairValueGap}
+          />
 
-          <div
-            style={{
-              marginBottom: "28px",
-              background: "#050505",
-              border: "1px solid rgba(255, 215, 0, 0.3)",
-              borderRadius: "22px",
-              padding: "22px",
-              boxShadow: "0 14px 38px rgba(0, 0, 0, 0.35)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "12px",
-                marginBottom: "16px",
-                flexWrap: "wrap",
-              }}
-            >
-              <h2
-                style={{
-                  margin: 0,
-                  fontSize: "clamp(1.15rem, 2vw, 1.35rem)",
-                  color: "#FFD700",
-                }}
-              >
-                Smart Money Concepts Engine
-              </h2>
-              <span
-                style={{
-                  color: "#f8d84a",
-                  fontSize: "0.8rem",
-                  letterSpacing: "0.24em",
-                  textTransform: "uppercase",
-                }}
-              >
-                Phase 3.2
-              </span>
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                gap: "16px",
-              }}
-            >
-              {smartMoneyCards.map((card) => (
-                <article
-                  key={card.title}
-                  style={{
-                    background: "rgba(255, 255, 255, 0.03)",
-                    border: "1px solid rgba(255, 215, 0, 0.2)",
-                    borderRadius: "18px",
-                    padding: "18px",
-                    boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.03)",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: "10px",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    <h3 style={{ margin: 0, fontSize: "1rem", color: "#f8d84a" }}>{card.title}</h3>
-                    <span
-                      style={{
-                        ...getBadgeStyle(card.status),
-                        padding: "6px 10px",
-                        borderRadius: "999px",
-                        fontSize: "0.75rem",
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                      }}
-                    >
-                      {card.status}
-                    </span>
-                  </div>
-                  <p
-                    style={{
-                      margin: 0,
-                      color: "#d8d8d8",
-                      fontSize: "0.95rem",
-                      lineHeight: 1.7,
-                    }}
-                  >
-                    {card.description}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
+          <SmcEngine cards={smcCards} />
 
           <div style={{ marginBottom: "28px" }}>
             <p
