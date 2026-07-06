@@ -34,6 +34,15 @@ export default function Home() {
     },
   ];
 
+  const marketStatus = [
+    { label: "Trend", value: "Neutral", level: 0 },
+    { label: "BOS", value: "Waiting", level: 1 },
+    { label: "CHoCH", value: "Waiting", level: 2 },
+    { label: "Liquidity", value: "Waiting", level: 3 },
+    { label: "Order Block", value: "Waiting", level: 4 },
+    { label: "Fair Value Gap", value: "Waiting", level: 5 },
+  ];
+
   return (
     <>
       <Header />
@@ -50,6 +59,49 @@ export default function Home() {
         }}
       >
         <section style={{ maxWidth: "1200px", width: "100%" }}>
+          <div
+            style={{
+              marginBottom: "28px",
+              background: "rgba(255, 255, 255, 0.04)",
+              border: "1px solid rgba(255, 215, 0, 0.22)",
+              borderRadius: "20px",
+              padding: "20px",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.25)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <h2
+              style={{
+                margin: "0 0 14px",
+                fontSize: "clamp(1.15rem, 2vw, 1.35rem)",
+                color: "#FFD700",
+              }}
+            >
+              Market Status
+            </h2>
+            <div style={{ display: "grid", gap: "10px" }}>
+              {marketStatus.map((item) => (
+                <div
+                  key={item.label}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: "12px",
+                    padding: "12px 14px",
+                    borderRadius: "12px",
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid rgba(255, 215, 0, 0.12)",
+                    paddingLeft: `${14 + item.level * 16}px`,
+                  }}
+                >
+                  <span style={{ fontWeight: 600, color: "#f8d84a" }}>{item.label}</span>
+                  <span style={{ color: "#f5f5f5", fontSize: "0.95rem" }}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div style={{ marginBottom: "28px" }}>
             <p
               style={{
