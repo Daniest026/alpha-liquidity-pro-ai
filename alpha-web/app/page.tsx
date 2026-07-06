@@ -4,12 +4,18 @@ import { useState } from "react";
 import Header from "../components/Header";
 
 export default function Home() {
-  const [trend, setTrend] = useState("Neutral");
-  const [bos, setBos] = useState("Waiting");
-  const [choch, setChoch] = useState("Waiting");
-  const [liquidity, setLiquidity] = useState("Waiting");
-  const [orderBlock, setOrderBlock] = useState("None");
-  const [fairValueGap, setFairValueGap] = useState("None");
+  const [trend] = useState("Neutral");
+  const [bos] = useState("Waiting");
+  const [choch] = useState("Waiting");
+  const [liquidity] = useState("Waiting");
+  const [orderBlock] = useState("None");
+  const [fairValueGap] = useState("None");
+  const [bosStatus] = useState("Waiting");
+  const [chochStatus] = useState("Waiting");
+  const [liquiditySweepStatus] = useState("Waiting");
+  const [orderBlockBias] = useState("Waiting");
+  const [fairValueGapStatus] = useState("Waiting");
+  const [premiumDiscountStatus] = useState("Waiting");
 
   const cards = [
     {
@@ -57,6 +63,7 @@ export default function Home() {
     switch (value) {
       case "Bullish":
       case "Detected":
+      case "Open":
         return {
           background: "rgba(34, 197, 94, 0.16)",
           color: "#4ade80",
@@ -69,6 +76,9 @@ export default function Home() {
           border: "1px solid rgba(248, 113, 113, 0.35)",
         };
       case "Neutral":
+      case "Premium":
+      case "Discount":
+      case "Equilibrium":
         return {
           background: "rgba(255, 215, 0, 0.16)",
           color: "#FFD700",
@@ -82,6 +92,39 @@ export default function Home() {
         };
     }
   };
+
+  const smartMoneyCards = [
+    {
+      title: "Break of Structure (BOS)",
+      status: bosStatus,
+      description: "Monitor structural breaks that confirm a shift in directional intent.",
+    },
+    {
+      title: "Change of Character (CHoCH)",
+      status: chochStatus,
+      description: "Detect subtle transitions that often precede a larger market reversal.",
+    },
+    {
+      title: "Liquidity Sweep",
+      status: liquiditySweepStatus,
+      description: "Identify engineered sweeps that trap participants before the next move.",
+    },
+    {
+      title: "Order Block",
+      status: orderBlockBias,
+      description: "Track institutional demand and supply zones that can anchor future price action.",
+    },
+    {
+      title: "Fair Value Gap",
+      status: fairValueGapStatus,
+      description: "Highlight imbalance zones where price often seeks efficient rebalancing.",
+    },
+    {
+      title: "Premium / Discount Zone",
+      status: premiumDiscountStatus,
+      description: "Map value areas to determine whether price is operating at a premium or discount.",
+    },
+  ];
 
   return (
     <>
@@ -150,6 +193,103 @@ export default function Home() {
                     {item.value}
                   </span>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          <div
+            style={{
+              marginBottom: "28px",
+              background: "#050505",
+              border: "1px solid rgba(255, 215, 0, 0.3)",
+              borderRadius: "22px",
+              padding: "22px",
+              boxShadow: "0 14px 38px rgba(0, 0, 0, 0.35)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: "12px",
+                marginBottom: "16px",
+                flexWrap: "wrap",
+              }}
+            >
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: "clamp(1.15rem, 2vw, 1.35rem)",
+                  color: "#FFD700",
+                }}
+              >
+                Smart Money Concepts Engine
+              </h2>
+              <span
+                style={{
+                  color: "#f8d84a",
+                  fontSize: "0.8rem",
+                  letterSpacing: "0.24em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Phase 3.2
+              </span>
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: "16px",
+              }}
+            >
+              {smartMoneyCards.map((card) => (
+                <article
+                  key={card.title}
+                  style={{
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid rgba(255, 215, 0, 0.2)",
+                    borderRadius: "18px",
+                    padding: "18px",
+                    boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.03)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: "10px",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <h3 style={{ margin: 0, fontSize: "1rem", color: "#f8d84a" }}>{card.title}</h3>
+                    <span
+                      style={{
+                        ...getBadgeStyle(card.status),
+                        padding: "6px 10px",
+                        borderRadius: "999px",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      {card.status}
+                    </span>
+                  </div>
+                  <p
+                    style={{
+                      margin: 0,
+                      color: "#d8d8d8",
+                      fontSize: "0.95rem",
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {card.description}
+                  </p>
+                </article>
               ))}
             </div>
           </div>
