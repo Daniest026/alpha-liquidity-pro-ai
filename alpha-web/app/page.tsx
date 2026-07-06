@@ -15,7 +15,7 @@ export default function Home() {
     >
       <h1>Alpha Liquidity Pro AI</h1>
       <p>Dashboard berhasil dibuat.</p>
-      <p>Versi 1.0</p>
+      <p>Versi 1.1</p>
     </main>
   );
 }
