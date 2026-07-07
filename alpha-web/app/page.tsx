@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import AiDecisionCard from "../components/AiDecisionCard";
+import AnalysisPanel from "../components/AnalysisPanel";
 import Header from "../components/Header";
 import MarketStatus from "../components/MarketStatus";
 import SmcEngine from "../components/SmcEngine";
@@ -107,6 +108,7 @@ export default function Home() {
           <SmcEngine cards={smcCards} />
 
           <AiDecisionCard />
+          <AnalysisPanel />
 
           <div style={{ marginBottom: "28px" }}>
             <p
