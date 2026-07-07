@@ -7,6 +7,8 @@ export type TrendDirection =
   | 'Bearish'
   | 'Strong Bearish';
 
+export type PremiumDiscountZone = 'Premium' | 'Discount' | 'Fair';
+
 export function calculateAverageClose(candles: Candle[]): number {
   if (candles.length === 0) {
     return 0;
@@ -47,6 +49,42 @@ export function detectTrend(candles: Candle[]): TrendDirection {
   }
 
   if (latestClose < averageClose) {
+    return 'Bearish';
+  }
+
+  return 'Neutral';
+}
+
+export function detectPremiumDiscount(candles: Candle[]): PremiumDiscountZone {
+  if (candles.length < 3) {
+    return 'Fair';
+  }
+
+  const recentRange = candles.slice(-20);
+  const recentHigh = Math.max(...recentRange.map((candle) => candle.high));
+  const recentLow = Math.min(...recentRange.map((candle) => candle.low));
+  const midpoint = (recentHigh + recentLow) / 2;
+  const latestClose = calculateLatestClose(candles);
+
+  if (latestClose > midpoint) {
+    return 'Premium';
+  }
+
+  if (latestClose < midpoint) {
+    return 'Discount';
+  }
+
+  return 'Fair';
+}
+
+export function detectMarketBias(candles: Candle[]): 'Bullish' | 'Bearish' | 'Neutral' {
+  const trend = detectTrend(candles);
+
+  if (trend === 'Strong Bullish' || trend === 'Bullish') {
+    return 'Bullish';
+  }
+
+  if (trend === 'Strong Bearish' || trend === 'Bearish') {
     return 'Bearish';
   }
 

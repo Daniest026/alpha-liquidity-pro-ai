@@ -1,18 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { AiDecision } from "../engine/aiDecision";
 import { analysisService } from "../services/analysisService";
 
 type AnalysisPanelState = {
   symbol: string;
   timeframe: string;
   totalCandles: number;
-  analysis: {
-    decision: "BUY" | "SELL" | "WAIT";
-    confidence: number;
-    reasons: string[];
-    trend: string;
-  } | null;
+  analysis: AiDecision | null;
   lastUpdated: string;
 };
 
@@ -21,12 +17,7 @@ type AnalysisPanelProps = {
     symbol: string;
     timeframe: string;
     totalCandles: number;
-    analysis: {
-      decision: "BUY" | "SELL" | "WAIT";
-      confidence: number;
-      reasons: string[];
-      trend: string;
-    };
+    analysis: AiDecision;
   } | null;
 };
 
@@ -47,7 +38,7 @@ export default function AnalysisPanel({ analysis }: AnalysisPanelProps) {
     timeframe: "M15",
     totalCandles: 0,
     analysis: null,
-    lastUpdated: "Waiting for analysis",
+    lastUpdated: "Ready for analysis",
   });
   const [loading, setLoading] = useState(true);
 
@@ -107,6 +98,20 @@ export default function AnalysisPanel({ analysis }: AnalysisPanelProps) {
     });
     setLoading(false);
   }, [analysis]);
+
+  const detailItems = [
+    ...(state.analysis?.reasons ?? []),
+    ...(state.analysis?.explanation ? [state.analysis.explanation] : []),
+    ...(state.analysis
+      ? [
+          `Entry Price: ${state.analysis.entryPrice.toFixed(2)}`,
+          `Stop Loss: ${state.analysis.stopLoss.toFixed(2)}`,
+          `Take Profit: ${state.analysis.takeProfit.toFixed(2)}`,
+          `Risk/Reward: ${state.analysis.riskRewardRatio.toFixed(2)}x`,
+          `Invalidation Level: ${state.analysis.invalidationLevel.toFixed(2)}`,
+        ]
+      : []),
+  ];
 
   return (
     <section
@@ -202,7 +207,7 @@ export default function AnalysisPanel({ analysis }: AnalysisPanelProps) {
           <div style={valueStyle}>{state.analysis?.confidence ?? 0}%</div>
         </div>
         <div style={cardStyle}>
-          <div style={labelStyle}>Total Candles</div>
+          <div style={labelStyle}>Jumlah Lilin</div>
           <div style={valueStyle}>{state.totalCandles}</div>
         </div>
         <div style={cardStyle}>
@@ -223,12 +228,14 @@ export default function AnalysisPanel({ analysis }: AnalysisPanelProps) {
           Reasons
         </div>
         {loading ? (
-          <p style={{ margin: "8px 0 0", color: "#d8d8d8" }}>Analyzing market structure...</p>
+          <p style={{ margin: "8px 0 0", color: "#d8d8d8" }}>Analyzing market structure with the full 200-candle dataset...</p>
         ) : (
           <ul style={{ margin: "8px 0 0", paddingLeft: "18px", color: "#d8d8d8", lineHeight: 1.6 }}>
-            {(state.analysis?.reasons ?? ["Waiting for market data."]).map((reason) => (
-              <li key={reason}>{reason}</li>
-            ))}
+            {detailItems.length > 0 ? (
+              detailItems.map((reason) => <li key={reason}>{reason}</li>)
+            ) : (
+              <li>Analysis ready for the 200-candle dataset.</li>
+            )}
           </ul>
         )}
       </div>

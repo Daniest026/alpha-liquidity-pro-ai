@@ -2,6 +2,7 @@ import type { AiDecision } from "../engine/aiDecision";
 
 type AiDecisionCardProps = {
   decision?: AiDecision | null;
+  loading?: boolean;
 };
 
 const statusChipStyle = (value: string) => {
@@ -27,17 +28,34 @@ const statusChipStyle = (value: string) => {
   }
 };
 
-export default function AiDecisionCard({ decision }: AiDecisionCardProps) {
+export default function AiDecisionCard({ decision, loading = false }: AiDecisionCardProps) {
   const activeDecision = decision ?? {
     decision: "WAIT",
     confidence: 0,
-    reasons: ["Waiting for market data."],
+    reasons: [loading ? "Analyzing market structure with 200 candles..." : "No analysis available yet."],
     trend: "Neutral",
     bos: false,
     choch: false,
     liquidity: false,
     orderBlock: false,
     fairValueGap: false,
+    bosDirection: "None",
+    chochDirection: "None",
+    liquidityDirection: "None",
+    orderBlockDirection: "None",
+    fairValueGapDirection: "None",
+    internalStructure: "Neutral",
+    externalStructure: "Neutral",
+    equalHigh: false,
+    equalLow: false,
+    premiumDiscount: "Fair",
+    marketBias: "Neutral",
+    explanation: loading ? "Analyzing market structure with 200 candles..." : "No analysis available yet.",
+    entryPrice: 0,
+    stopLoss: 0,
+    takeProfit: 0,
+    riskRewardRatio: 0,
+    invalidationLevel: 0,
   };
 
   return (
@@ -225,7 +243,15 @@ export default function AiDecisionCard({ decision }: AiDecisionCardProps) {
           Reasons
         </div>
         <ul style={{ margin: "8px 0 0", paddingLeft: "18px", color: "#d8d8d8", lineHeight: 1.6 }}>
-          {activeDecision.reasons.map((reason) => (
+          {[
+            ...activeDecision.reasons,
+            ...(activeDecision.explanation ? [activeDecision.explanation] : []),
+            `Entry Price: ${activeDecision.entryPrice.toFixed(2)}`,
+            `Stop Loss: ${activeDecision.stopLoss.toFixed(2)}`,
+            `Take Profit: ${activeDecision.takeProfit.toFixed(2)}`,
+            `Risk/Reward: ${activeDecision.riskRewardRatio.toFixed(2)}x`,
+            `Invalidation Level: ${activeDecision.invalidationLevel.toFixed(2)}`,
+          ].map((reason) => (
             <li key={reason}>{reason}</li>
           ))}
         </ul>

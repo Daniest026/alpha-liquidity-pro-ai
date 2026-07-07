@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { AiDecision } from "../engine/aiDecision";
+import { MARKET_PROVIDER } from "../config/market";
 import { analysisService } from "../services/analysisService";
 
 type TradingControlPanelProps = {
@@ -38,7 +39,7 @@ export default function TradingControlPanel({ onAnalysis }: TradingControlPanelP
   const handleAnalyze = async () => {
     setLoading(true);
     try {
-      const result = await analysisService.analyze(selectedSymbol, selectedTimeframe);
+      const result = await analysisService.analyze(selectedSymbol, selectedTimeframe, MARKET_PROVIDER.defaultLimit);
       onAnalysis(result);
     } finally {
       setLoading(false);

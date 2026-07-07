@@ -10,9 +10,11 @@ export interface MarketProviderConfig {
   defaultLimit: number;
 }
 
+export const DEFAULT_CANDLE_COUNT = 200;
+
 export const MARKET_PROVIDER: MarketProviderConfig = {
   provider: MarketProviderType.MOCK,
   defaultSymbol: 'XAUUSD',
   defaultTimeframe: 'M15',
-  defaultLimit: 200,
+  defaultLimit: DEFAULT_CANDLE_COUNT,
 };

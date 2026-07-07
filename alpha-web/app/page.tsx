@@ -1,27 +1,94 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AiDecisionCard from "../components/AiDecisionCard";
 import AnalysisPanel from "../components/AnalysisPanel";
 import Header from "../components/Header";
 import MarketStatus from "../components/MarketStatus";
 import SmcEngine from "../components/SmcEngine";
 import TradingControlPanel from "../components/TradingControlPanel";
+import type { AiDecision } from "../engine/aiDecision";
 import { getInitialSmcState } from "../lib/smc";
+import { analysisService } from "../services/analysisService";
 
 export default function Home() {
-  const [smcState] = useState(() => getInitialSmcState());
+  const [smcState, setSmcState] = useState(() => getInitialSmcState());
   const [analysisResult, setAnalysisResult] = useState<{
     symbol: string;
     timeframe: string;
     totalCandles: number;
-    analysis: {
-      decision: "BUY" | "SELL" | "WAIT";
-      confidence: number;
-      reasons: string[];
-      trend: string;
-    };
+    analysis: AiDecision;
   } | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(true);
+
+  const applyAnalysisResult = (result: {
+    symbol: string;
+    timeframe: string;
+    totalCandles: number;
+    analysis: AiDecision;
+  }) => {
+    const normalizedTrend = (() => {
+      switch (result.analysis.trend) {
+        case "Strong Bullish":
+        case "Bullish":
+          return "Bullish";
+        case "Strong Bearish":
+        case "Bearish":
+          return "Bearish";
+        default:
+          return "Neutral";
+      }
+    })();
+
+    const bosStatus = result.analysis.bosDirection === "Bullish" ? "Bullish" : result.analysis.bosDirection === "Bearish" ? "Bearish" : "Waiting";
+    const chochStatus = result.analysis.chochDirection === "Bullish" ? "Bullish" : result.analysis.chochDirection === "Bearish" ? "Bearish" : "Waiting";
+    const liquidityStatus = result.analysis.liquidityDirection === "Bullish" ? "Bullish" : result.analysis.liquidityDirection === "Bearish" ? "Bearish" : "Waiting";
+    const orderBlockStatus = result.analysis.orderBlockDirection === "Bullish" ? "Bullish" : result.analysis.orderBlockDirection === "Bearish" ? "Bearish" : "Waiting";
+    const fairValueGapStatus = result.analysis.fairValueGapDirection === "Bullish" ? "Open" : result.analysis.fairValueGapDirection === "Bearish" ? "Open" : "None";
+
+    setSmcState({
+      trend: normalizedTrend,
+      bos: bosStatus,
+      choch: chochStatus,
+      liquidity: liquidityStatus,
+      orderBlock: orderBlockStatus,
+      fairValueGap: fairValueGapStatus,
+    });
+    setAnalysisResult(result);
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadMarketState() {
+      setIsAnalyzing(true);
+
+      try {
+        const result = await analysisService.analyze("XAUUSD", "M15");
+
+        if (!isMounted) {
+          return;
+        }
+
+        applyAnalysisResult(result);
+      } catch {
+        if (isMounted) {
+          setSmcState(getInitialSmcState());
+          setAnalysisResult(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsAnalyzing(false);
+        }
+      }
+    }
+
+    void loadMarketState();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const smcCards = useMemo(
     () => [
@@ -119,8 +186,8 @@ export default function Home() {
 
           <SmcEngine cards={smcCards} />
 
-          <AiDecisionCard />
-          <TradingControlPanel onAnalysis={setAnalysisResult} />
+          <AiDecisionCard decision={analysisResult?.analysis ?? null} loading={isAnalyzing} />
+          <TradingControlPanel onAnalysis={applyAnalysisResult} />
           <AnalysisPanel analysis={analysisResult} />
 
           <div style={{ marginBottom: "28px" }}>

@@ -26,14 +26,16 @@ export function detectOrderBlock(candles: Candle[]): OrderBlockResult {
   const lastIndex = candles.length - 1;
   const previousCandle = candles[lastIndex - 1];
   const currentCandle = candles[lastIndex];
+  const impulse = Math.abs(currentCandle.close - currentCandle.open);
+  const previousRange = Math.abs(previousCandle.high - previousCandle.low);
 
-  if (previousCandle.close < previousCandle.open && currentCandle.close > currentCandle.open) {
+  if (previousCandle.close < previousCandle.open && currentCandle.close > currentCandle.open && impulse > previousRange * 0.4) {
     return {
       detected: true,
       confidence: 85,
       direction: 'Bullish',
       level: previousCandle.close,
-      reason: 'Bullish Order Block detected.',
+      reason: 'A bullish order block formed after a bearish impulse and was confirmed by a strong reversal.',
       orderBlock: {
         type: 'Bullish',
         price: previousCandle.close,
@@ -42,13 +44,13 @@ export function detectOrderBlock(candles: Candle[]): OrderBlockResult {
     };
   }
 
-  if (previousCandle.close > previousCandle.open && currentCandle.close < currentCandle.open) {
+  if (previousCandle.close > previousCandle.open && currentCandle.close < currentCandle.open && impulse > previousRange * 0.4) {
     return {
       detected: true,
       confidence: 85,
       direction: 'Bearish',
       level: previousCandle.close,
-      reason: 'Bearish Order Block detected.',
+      reason: 'A bearish order block formed after a bullish impulse and was confirmed by a strong reversal.',
       orderBlock: {
         type: 'Bearish',
         price: previousCandle.close,

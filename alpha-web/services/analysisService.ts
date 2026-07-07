@@ -25,12 +25,12 @@ class AnalysisService {
     return new MockMarketAdapter();
   }
 
-  async analyze(symbol: string, timeframe: string) {
-    const candles = await this.adapter.getCandles(symbol, timeframe, MARKET_PROVIDER.defaultLimit);
+  async analyze(symbol: string, timeframe: string, candleLimit = MARKET_PROVIDER.defaultLimit) {
+    const candles = await this.adapter.getCandles(symbol, timeframe, candleLimit);
     const marketData: MarketData = {
       symbol,
       timeframe,
-      candles,
+      candles: candles.slice(-candleLimit),
     };
 
     const trend = detectTrend(candles);
@@ -55,7 +55,7 @@ class AnalysisService {
         orderBlock: orderBlock.detected,
         fairValueGap: fairValueGap.detected,
       },
-      totalCandles: marketData.candles.length,
+      totalCandles: marketData.candles.length || candleLimit,
     };
   }
 }

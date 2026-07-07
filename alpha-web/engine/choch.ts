@@ -14,30 +14,26 @@ export function detectChangeOfCharacter(candles: Candle[]): EngineResult {
 
   const latestCandle = candles[candles.length - 1];
   const previousCandle = candles[candles.length - 2];
+  const previousHigh = previousCandle.high;
+  const previousLow = previousCandle.low;
 
-  const recentHighs = candles.slice(-10).map((candle) => candle.high);
-  const recentLows = candles.slice(-10).map((candle) => candle.low);
-
-  const previousLowerHigh = recentHighs[recentHighs.length - 2];
-  const previousHigherLow = recentLows[recentLows.length - 2];
-
-  if (latestCandle.close > previousLowerHigh) {
+  if (latestCandle.close > previousHigh && previousCandle.close < previousHigh) {
     return {
       detected: true,
       confidence: 75,
       direction: 'Bullish',
-      level: previousLowerHigh,
-      reason: 'Price broke above previous lower high.',
+      level: previousHigh,
+      reason: 'Price broke above the previous swing high, signaling a bullish change of character.',
     };
   }
 
-  if (latestCandle.close < previousHigherLow) {
+  if (latestCandle.close < previousLow && previousCandle.close > previousLow) {
     return {
       detected: true,
       confidence: 75,
       direction: 'Bearish',
-      level: previousHigherLow,
-      reason: 'Price broke below previous higher low.',
+      level: previousLow,
+      reason: 'Price broke below the previous swing low, signaling a bearish change of character.',
     };
   }
 

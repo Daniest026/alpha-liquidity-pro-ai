@@ -1,5 +1,6 @@
 import { Candle } from '../lib/types';
 import { EngineResult } from './core';
+import { findSwingHigh, findSwingLow } from './bos';
 
 export interface LiquidityLevel {
   price: number;
@@ -23,34 +24,32 @@ export function detectLiquiditySweep(candles: Candle[]): LiquidityResult {
   }
 
   const latestCandle = candles[candles.length - 1];
-  const previousCandle = candles[candles.length - 2];
+  const previousSwingHigh = findSwingHigh(candles);
+  const previousSwingLow = findSwingLow(candles);
 
-  const previousSwingHigh = Math.max(...candles.slice(-10).map((candle) => candle.high));
-  const previousSwingLow = Math.min(...candles.slice(-10).map((candle) => candle.low));
-
-  if (latestCandle.high > previousSwingHigh && latestCandle.close < previousSwingHigh) {
+  if (previousSwingHigh && latestCandle.high > previousSwingHigh.price && latestCandle.close < previousSwingHigh.price) {
     return {
       detected: true,
       confidence: 80,
       direction: 'Bearish',
-      level: previousSwingHigh,
-      reason: 'Buy-side liquidity swept.',
+      level: previousSwingHigh.price,
+      reason: 'Buy-side liquidity was swept as price rejected the prior swing high.',
       liquidity: {
-        price: previousSwingHigh,
+        price: previousSwingHigh.price,
         type: 'Buy Side',
       },
     };
   }
 
-  if (latestCandle.low < previousSwingLow && latestCandle.close > previousSwingLow) {
+  if (previousSwingLow && latestCandle.low < previousSwingLow.price && latestCandle.close > previousSwingLow.price) {
     return {
       detected: true,
       confidence: 80,
       direction: 'Bullish',
-      level: previousSwingLow,
-      reason: 'Sell-side liquidity swept.',
+      level: previousSwingLow.price,
+      reason: 'Sell-side liquidity was swept as price rejected the prior swing low.',
       liquidity: {
-        price: previousSwingLow,
+        price: previousSwingLow.price,
         type: 'Sell Side',
       },
     };
