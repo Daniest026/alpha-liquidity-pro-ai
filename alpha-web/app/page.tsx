@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import AiDecisionCard from "../components/AiDecisionCard";
 import Header from "../components/Header";
 import MarketStatus from "../components/MarketStatus";
 import SmcEngine from "../components/SmcEngine";
@@ -104,6 +105,8 @@ export default function Home() {
           />
 
           <SmcEngine cards={smcCards} />
+
+          <AiDecisionCard />
 
           <div style={{ marginBottom: "28px" }}>
             <p
