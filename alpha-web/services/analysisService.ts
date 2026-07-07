@@ -6,13 +6,27 @@ import { detectLiquiditySweep } from '../engine/liquidity';
 import { detectOrderBlock } from '../engine/orderBlock';
 import { detectTrend } from '../engine/trend';
 import { MockMarketAdapter, type MarketAdapter } from '../adapters/marketAdapter';
+import { RealMarketAdapter } from '../adapters/realMarketAdapter';
+import { MARKET_PROVIDER, MarketProviderType } from '../config/market';
 import type { MarketData } from '../lib/types';
 
 class AnalysisService {
-  constructor(private readonly adapter: MarketAdapter = new MockMarketAdapter()) {}
+  private readonly adapter: MarketAdapter;
+
+  constructor(adapter?: MarketAdapter) {
+    this.adapter = adapter ?? AnalysisService.createAdapter();
+  }
+
+  private static createAdapter(): MarketAdapter {
+    if (MARKET_PROVIDER.provider === MarketProviderType.REAL) {
+      return new RealMarketAdapter();
+    }
+
+    return new MockMarketAdapter();
+  }
 
   async analyze(symbol: string, timeframe: string) {
-    const candles = await this.adapter.getCandles(symbol, timeframe, 1000);
+    const candles = await this.adapter.getCandles(symbol, timeframe, MARKET_PROVIDER.defaultLimit);
     const marketData: MarketData = {
       symbol,
       timeframe,
