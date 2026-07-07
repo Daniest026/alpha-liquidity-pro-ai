@@ -16,6 +16,20 @@ type AnalysisPanelState = {
   lastUpdated: string;
 };
 
+type AnalysisPanelProps = {
+  analysis?: {
+    symbol: string;
+    timeframe: string;
+    totalCandles: number;
+    analysis: {
+      decision: "BUY" | "SELL" | "WAIT";
+      confidence: number;
+      reasons: string[];
+      trend: string;
+    };
+  } | null;
+};
+
 const getDecisionColor = (decision: string) => {
   switch (decision) {
     case "BUY":
@@ -27,7 +41,7 @@ const getDecisionColor = (decision: string) => {
   }
 };
 
-export default function AnalysisPanel() {
+export default function AnalysisPanel({ analysis }: AnalysisPanelProps) {
   const [state, setState] = useState<AnalysisPanelState>({
     symbol: "XAUUSD",
     timeframe: "M15",
@@ -78,6 +92,21 @@ export default function AnalysisPanel() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!analysis) {
+      return;
+    }
+
+    setState({
+      symbol: analysis.symbol,
+      timeframe: analysis.timeframe,
+      totalCandles: analysis.totalCandles,
+      analysis: analysis.analysis,
+      lastUpdated: new Date().toLocaleTimeString(),
+    });
+    setLoading(false);
+  }, [analysis]);
 
   return (
     <section

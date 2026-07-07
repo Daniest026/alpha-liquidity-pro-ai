@@ -6,10 +6,22 @@ import AnalysisPanel from "../components/AnalysisPanel";
 import Header from "../components/Header";
 import MarketStatus from "../components/MarketStatus";
 import SmcEngine from "../components/SmcEngine";
+import TradingControlPanel from "../components/TradingControlPanel";
 import { getInitialSmcState } from "../lib/smc";
 
 export default function Home() {
   const [smcState] = useState(() => getInitialSmcState());
+  const [analysisResult, setAnalysisResult] = useState<{
+    symbol: string;
+    timeframe: string;
+    totalCandles: number;
+    analysis: {
+      decision: "BUY" | "SELL" | "WAIT";
+      confidence: number;
+      reasons: string[];
+      trend: string;
+    };
+  } | null>(null);
 
   const smcCards = useMemo(
     () => [
@@ -108,7 +120,8 @@ export default function Home() {
           <SmcEngine cards={smcCards} />
 
           <AiDecisionCard />
-          <AnalysisPanel />
+          <TradingControlPanel onAnalysis={setAnalysisResult} />
+          <AnalysisPanel analysis={analysisResult} />
 
           <div style={{ marginBottom: "28px" }}>
             <p
